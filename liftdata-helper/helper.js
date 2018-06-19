@@ -1,6 +1,6 @@
 const randomNum = (min, max) => Math.floor(Math.random() * (max - min) + min);
 
-const exercises = ['squat', 'deadlift', 'bench', 'overhead press']
+const exercises = ['squat', 'deadlift', 'bench', 'overhead press'];
 
 const randomEntry = () => ({
     exercise: exercises[randomNum(0, exercises.length)],
@@ -9,14 +9,6 @@ const randomEntry = () => ({
     sets: randomNum(1, 6),
     reps: randomNum(4, 13)
 });
-
-// const isLikeEntries = (logA, logB) => (
-//     logA.exercise === logB.exercise
-//     && logA.weight === logB.weight
-//     && logA.unit === logB.unit
-//     && logA.reps === logB.reps
-// );
-
 
 // adds a schema_id to all logs so that we can sort simply
 // min_id/max_id represents range of schema_id's (inclusive/inclusive)
