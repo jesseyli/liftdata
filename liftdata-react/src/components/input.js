@@ -26,6 +26,13 @@ class InputForm extends Component {
 
         // send up
         this.props.onSubmit(this.state);
+
+        this.setState({
+            exercise: '',
+            weight: '',
+            sets: 1,
+            reps: 1
+        })
     }
 
     render() {
