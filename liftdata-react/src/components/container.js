@@ -71,7 +71,7 @@ class Container extends Component {
             entries: newEntries,
             compiled,
             max_id
-        })
+        });
     }
 
     render() {

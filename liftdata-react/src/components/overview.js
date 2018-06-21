@@ -10,14 +10,12 @@ class Overview extends Component {
     render() {
         const { entries, compiled, onSubmit } = this.props;
         return (
-            <div>
+            <div className="d-flex mx-auto w-50 flex-column">
                 <button className="btn btn-danger" onClick={() => { this.setState({ regular: !this.state.regular }) }}>Toggle</button>
                 <Table
                     logs={this.state.regular ? entries : compiled}
-                    headers={['Exercise', 'Weight', 'Sets', 'Reps']}
+                    headers={['Exercise', 'Weight', 'Sets', 'Reps', '']}
                 />
-
-
                 <InputForm onSubmit={onSubmit} />
             </div>
         )
