@@ -9,8 +9,11 @@ const rowRender = ({ exercise, weight, unit, sets, reps }, index) => (
         <td>{`${weight} ${unit}`}</td>
         <td>{sets}</td>
         <td>{reps}</td>
+        <td><button className="btn btn-danger" onClick={() => {}}>x</button></td>
     </tr>
 );
+
+// remove is currently complicated without a database, haven't decided on an implementation of id for each exercise (timestamp maybe?)
 
 const Table = ({ logs, headers }) => (
     <table className="table">
