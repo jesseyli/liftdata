@@ -1,18 +1,20 @@
 var express = require('express');
 var graphqlHTTP = require('express-graphql');
 var { buildSchema } = require('graphql');
+const MongoClient = require('mongodb').MongoClient;
+const ObjectId = require('mongodb').ObjectId;
 
 // Construct a schema, using GraphQL schema language
 var schema = buildSchema(`
   input MessageInput {
     content: String
-    author: String
+    authorId: String
   }
 
   type Message {
     id: ID!
     content: String
-    author: String
+    authorId: ID
   }
 
   type Query {
@@ -27,46 +29,63 @@ var schema = buildSchema(`
 
 // If Message had any complex fields, we'd put them on this object.
 class Message {
-  constructor(id, { content, author }) {
+  constructor(id, content, authorId) {
     this.id = id;
     this.content = content;
-    this.author = author;
+    this.authorId = authorId;
   }
 }
 
-// Maps username to content
-var fakeDatabase = {};
+function processMessage(message) {
+    if (!message) {return null}
+    return new Message(message._id, message.content, message.authorId);
+  }
 
 var root = {
-  getMessage: function ({ id }) {
-    if (!fakeDatabase[id]) {
-      throw new Error('no message exists with id ' + id);
-    }
-    return new Message(id, fakeDatabase[id]);
+  getMessage: async function ({ id }) {
+    return Messages.findOne({'_id':ObjectId(id)}).then(processMessage)
   },
-  createMessage: function ({ input }) {
+  createMessage: async function ({ input }) {
     // Create a random id for our "database".
-    var id = require('crypto').randomBytes(10).toString('hex');
-
-    fakeDatabase[id] = input;
-    return new Message(id, input);
+    const r = await Messages.insertOne({'content': input.content, 'authorId': input.authorId})
+    return new Message(r.insertedId, input.content, input.authorId);
   },
-  updateMessage: function ({ id, input }) {
-    if (!fakeDatabase[id]) {
-      throw new Error('no message exists with id ' + id);
+  updateMessage: async function ({ id, input }) {
+    var updatedFields = {}
+    if (input.content) {
+      updatedFields.content = input.content
     }
-    // This replaces all old data, but some apps might want partial update.
-    fakeDatabase[id] = input;
-    return new Message(id, input);
+    if (input.authorId) {
+      updatedFields.authorId = input.authorId
+    }
+    r = await Messages.findOneAndUpdate({'_id':ObjectId(id)}, {'$set': updatedFields})
+    return new Message(id, input.content, input.authorId);
   },
 };
 
+
 var app = express();
+
+const url = 'mongodb://localhost:27017';
+
+var Messages;
+
+// Create the db connection
+MongoClient.connect(url, {  
+  poolSize: 10
+},function(err, client) {
+    mongodb=client.db('myproject');
+    Messages=mongodb.collection('messages');
+    }
+);
+
 app.use('/graphql', graphqlHTTP({
   schema: schema,
   rootValue: root,
   graphiql: true,
 }));
+
+
 app.listen(4000, () => {
   console.log('Running a GraphQL API server at localhost:4000/graphql');
 });
